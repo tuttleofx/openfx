@@ -87,6 +87,9 @@ namespace OFX {
     /** @brief Pointer to the parametric parameter suite */
     extern OfxParametricParameterSuiteV1* gParametricParameterSuite;
 
+    /** @brief Pointer to the camera parameter suite */
+    extern NukeOfxCameraSuiteV1* gCameraParameterSuite;
+
     /** @brief Support lib function called on an ofx load action */
     void loadAction(void);
 

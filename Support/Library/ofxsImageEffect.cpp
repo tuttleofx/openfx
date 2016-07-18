@@ -48,6 +48,8 @@ England
 #endif
 #include "ofxsCore.h"
 
+#include "extensions/nuke/nukeOfxCamera.h"
+
 #if defined __APPLE__ || defined linux || defined __FreeBSD__
 # if __GNUC__ >= 4
 #  define EXPORT __attribute__((visibility("default")))
@@ -141,7 +143,7 @@ namespace OFX {
     return NULL;
   }
 
-  namespace Private {        
+  namespace Private {
     // Suite and host pointers
     OfxHost               *gHost = 0;
     OfxImageEffectSuiteV1 *gEffectSuite = 0;
@@ -159,11 +161,12 @@ namespace OFX {
 #ifdef OFX_SUPPORTS_OPENGLRENDER
     OfxImageEffectOpenGLRenderSuiteV1 *gOpenGLRenderSuite = 0;
 #endif
+    NukeOfxCameraSuiteV1* gCameraParameterSuite = NULL;
 
     // @brief the set of descriptors, one per context used by kOfxActionDescribeInContext,
     //'eContextNone' is the one used by the kOfxActionDescribe
     EffectDescriptorMap gEffectDescriptors;
-  };
+  }
 
   /** @brief map a std::string to a context */
   ContextEnum mapToContextEnum(const std::string &s) throw(std::invalid_argument)
@@ -743,7 +746,7 @@ namespace OFX {
     // no, so make it
     OfxPropertySetHandle propSet;
     OfxStatus stat = OFX::Private::gEffectSuite->clipDefine(_effectHandle, name.c_str(), &propSet);
-    (void)stat;
+    // TODO: check status
 
     ClipDescriptor *clip = new ClipDescriptor(name, propSet);
 
@@ -755,6 +758,22 @@ namespace OFX {
     _clipFrameRangePropNames[name] = std::string("OfxImageClipPropFrameRange_") + name;
     return clip;
   }
+  
+  CameraParamDescriptor* ImageEffectDescriptor::defineCameraParam(const std::string &name)
+  {
+    std::map<std::string, ParamDescriptor*>::const_iterator search = this->_definedParams.find(name);
+    if(search != this->_definedParams.end())
+      return dynamic_cast<CameraParamDescriptor*>(search->second);
+
+    OfxPropertySetHandle propSet;
+    OfxStatus stat = OFX::Private::gCameraParameterSuite->cameraDefine(this->_effectHandle, name.c_str(), &propSet);
+    throwSuiteStatusException(stat);
+    
+    CameraParamDescriptor* camera = new CameraParamDescriptor(name, propSet);
+    this->_definedParams[name] = camera;
+    return camera;
+  }
+
 
   ////////////////////////////////////////////////////////////////////////////////
   // wraps up an image  
@@ -1386,6 +1405,14 @@ namespace OFX {
     return newClip;
   }
 
+  /** @brief Fetch a camera param */
+  CameraParam* ImageEffect::fetchCameraParam(const std::string& name)
+  {
+      CameraParam* ptr = NULL;
+      this->fetchAttribute<CameraParam>(getHandle(), name, ptr);
+      return ptr;
+  }
+
   /** @brief does the host want us to abort rendering? */
   bool ImageEffect::abort(void) const
   {
@@ -1847,6 +1874,7 @@ namespace OFX {
         gHostDescription.osHandle                   = hostProps.propGetPointer(kOfxPropHostOSHandle, false);
         gHostDescription.supportsParametricParameter = gParametricParameterSuite != 0;
         gHostDescription.supportsParametricAnimation = hostProps.propGetInt(kOfxParamHostPropSupportsParametricAnimation, false) != 0;
+        gHostDescription.supportsCameraParameter    = gCameraParameterSuite != 0;
         gHostDescription.supportsRenderQualityDraft = hostProps.propGetInt(kOfxImageEffectPropRenderQualityDraft, false) != 0; // appeared in OFX 1.4
         {
             std::string originStr = hostProps.propGetString(kOfxImageEffectHostPropNativeOrigin, false); // appeared in OFX 1.4
@@ -1937,6 +1965,7 @@ namespace OFX {
 #ifdef OFX_SUPPORTS_OPENGLRENDER
         gOpenGLRenderSuite = (OfxImageEffectOpenGLRenderSuiteV1*) fetchSuite(kOfxOpenGLRenderSuite, 1, true);
 #endif
+        gCameraParameterSuite =  (NukeOfxCameraSuiteV1*) fetchSuite(kNukeOfxCameraSuite, 1, true);
 
         // OK check and fetch host information
         fetchHostDescription(gHost);

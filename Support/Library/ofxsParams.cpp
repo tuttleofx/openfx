@@ -981,6 +981,14 @@ namespace OFX {
     desc->setParamName(getName());
   }
 
+////////////////////////////////////////////////////////////////////////////////
+// Wraps up a camera param
+  /** @brief hidden constructor */
+  CameraParamDescriptor::CameraParamDescriptor(const std::string &name, OfxPropertySetHandle props)
+    : ParamDescriptor(name, eCameraParam, props)
+  {
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   // Descriptor for a set of parameters
   /** @brief hidden ctor */
@@ -2556,7 +2564,7 @@ namespace OFX {
     bool v = _paramProps.propGetInt(kOfxParamPropGroupOpen) != 0;
     return v;
   }
-
+  
   ////////////////////////////////////////////////////////////////////////////////
   // Wraps up a page param
 
@@ -2746,6 +2754,26 @@ namespace OFX {
   }
 
   ////////////////////////////////////////////////////////////////////////////////
+  // Wraps up a camera param
+
+  /** @brief hidden constructor */
+  CameraParam::CameraParam(OfxImageEffectHandle imageEffectHandle, const ParamSet* paramSet, const std::string& name,
+                           NukeOfxCameraHandle handle)
+    : Param(paramSet, name, eCameraParam, (OfxParamHandle)handle)
+    , _imageEffectHandle(imageEffectHandle)
+  {
+    // fetch all parameters
+    OfxStatus stat = OFX::Private::gCameraParameterSuite->cameraGetHandle(imageEffectHandle, name.c_str(), &_cameraHandle, &_cameraPropertySet);
+    throwSuiteStatusException( stat );
+  }
+
+  void CameraParam::getParamData(const std::string& name, double time, int view, double* baseReturnAddress, int returnSize) const
+  {
+    OfxStatus stat = OFX::Private::gCameraParameterSuite->cameraGetParameter(_cameraHandle, name.c_str(), time, view, baseReturnAddress, returnSize);
+    throwSuiteStatusException( stat );
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
   //  for a set of parameters
   /** @brief hidden ctor */
   ParamSet::ParamSet(void)
@@ -2800,6 +2828,16 @@ namespace OFX {
     if(paramTypeStr != mapParamTypeEnumToString(paramType)) {
       throw OFX::Exception::TypeRequest("Parameter exists but is of the wrong type");
     }
+  }
+
+  /** @brief calls the raw OFX routine to fetch a param */
+  void ParamSet::fetchRawCameraParam(OfxImageEffectHandle pluginHandle, const std::string& name, NukeOfxCameraHandle& handle) const
+  {
+      OfxPropertySetHandle propHandle;
+
+      OfxStatus stat = OFX::Private::gCameraParameterSuite->cameraGetHandle(pluginHandle, name.c_str(), &handle, &propHandle);
+
+      throwSuiteStatusException(stat);
   }
 
   ParamTypeEnum ParamSet::getParamType(const std::string& name) const

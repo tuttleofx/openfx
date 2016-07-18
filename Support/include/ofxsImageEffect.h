@@ -53,6 +53,9 @@ of the direct OFX objects and any library side only functions.
 #include "ofxTimeLine.h"
 #include "ofxParametricParam.h"
 
+#include "extensions/nuke/nukeOfxCamera.h"
+
+
 /** @brief Nasty macro used to define empty protected copy ctors and assign ops */
 #define mDeclareProtectedAssignAndCC(CLASS) \
   CLASS &operator=(const CLASS &) {assert(false); return *this;}	\
@@ -283,6 +286,7 @@ namespace OFX {
     void* osHandle;
     bool supportsParametricParameter;
     bool supportsParametricAnimation;
+    bool supportsCameraParameter;
     bool supportsRenderQualityDraft;
     NativeOriginEnum nativeOrigin;
 #ifdef OFX_SUPPORTS_OPENGLRENDER
@@ -478,6 +482,8 @@ namespace OFX {
     The returned clip \em must not be deleted by the client code. This is all managed by the ImageEffectDescriptor itself.
     */
     ClipDescriptor *defineClip(const std::string &name);
+
+    CameraParamDescriptor* defineCameraParam(const std::string &name);
 
     /** @brief Access to the string maps needed for runtime properties. Because the char array must persist after the call,
     we need these to be stored in the descriptor, which is only deleted on unload.*/
@@ -1060,6 +1066,8 @@ namespace OFX {
     The returned clip \em must not be deleted by the client code. This is all managed by the ImageEffect itself.
     */
     Clip *fetchClip(const std::string &name);
+
+    CameraParam* fetchCameraParam( const std::string& name );
 
     /** @brief does the host want us to abort rendering? */
     bool abort(void) const;

@@ -53,6 +53,9 @@ each represent the actions that can be carried out on those particular OFX objec
 #include <memory>
 #include "ofxsCore.h"
 
+#include "extensions/nuke/fnPublicOfxExtensions.h"
+#include "extensions/nuke/nukeOfxCamera.h"
+
 /** @brief Nasty macro used to define empty protected copy ctors and assign ops */
 #define mDeclareProtectedAssignAndCC(CLASS) \
   CLASS &operator=(const CLASS &) {assert(false); return *this;}	\
@@ -125,6 +128,7 @@ namespace OFX {
                         ePageParam,
                         ePushButtonParam,
                         eParametricParam,
+                        eCameraParam
                         };
 
     /** @brief Enumerates the different types of cache invalidation */
@@ -715,7 +719,19 @@ namespace OFX {
         void setIdentity();
         
         void setInteractDescriptor( ParamInteractDescriptor* desc );
-        
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////
+    /** @brief Wraps up a push button param, not much to it at all */
+    class CameraParamDescriptor : public ParamDescriptor
+    {
+    protected:
+        mDeclareProtectedAssignAndCCBase(CameraParamDescriptor,ParamDescriptor);
+        CameraParamDescriptor(void) {assert(false);}
+
+    public:
+        /** @brief hidden constructor */
+        CameraParamDescriptor(const std::string& name, OfxPropertySetHandle props);
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -746,7 +762,7 @@ namespace OFX {
 
         /** @brief calls the raw OFX routine to define a param */
         void defineRawParam(const std::string &name, ParamTypeEnum paramType, OfxPropertySetHandle &props);
-
+        
         /** @brief Define a param descriptor of the given type */
         template <class T> bool
         defineParamDescriptor(const std::string &name, ParamTypeEnum paramType, T * &paramPtr)
@@ -762,7 +778,8 @@ namespace OFX {
                 else
                     return false; // SHOULD THROW SOMETHING HERE!!!!!!!
             }
-            else {
+            else
+            {
                 // ok define one and add it in
                 OfxPropertySetHandle props;
                 defineRawParam(name, paramType, props);
@@ -852,6 +869,8 @@ namespace OFX {
 
         /** @brief Define a parametric param */
         ParametricParamDescriptor* defineParametricParam(const std::string &name);
+        
+        CameraParamDescriptor* defineCameraParam(const std::string &name);
 
         /** @brief Define a custom param */
         CustomParamDescriptor *defineCustomParam(const std::string &name);
@@ -1695,8 +1714,124 @@ namespace OFX {
     };
 
     ////////////////////////////////////////////////////////////////////////////////
+    /** @brief Wraps up a camera param */
+    class CameraParam : public Param
+    {
+    private:
+        mDeclareProtectedAssignAndCC( CameraParam );
+        CameraParam( void ) { assert( false ); }
+
+    protected:
+        /** @brief hidden constructor */
+        CameraParam( OfxImageEffectHandle imageEffectHandle, const ParamSet* paramSet, const std::string& name, NukeOfxCameraHandle handle );
+
+        // so it can make one
+        friend class ParamSet;
+
+    public:
+        void getParamData(const std::string& name, double time, int view, double* baseReturnAddress, int returnSize) const;
+
+    private:
+        NukeOfxCameraHandle _cameraHandle = NULL;
+        OfxPropertySetHandle _cameraPropertySet = NULL;
+        OfxImageEffectHandle _imageEffectHandle;
+    };
+
+    template<class ParamType>
+    inline ParamTypeEnum mapParamTypeToEnum()
+    {
+        return eDummyParam; // as default value...
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<StringParam>()
+    {
+        return eStringParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<IntParam>()
+    {
+        return eIntParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<Int2DParam>()
+    {
+        return eInt2DParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<Int3DParam>()
+    {
+        return eInt3DParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<DoubleParam>()
+    {
+        return eDoubleParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<Double2DParam>()
+    {
+        return eDouble2DParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<Double3DParam>()
+    {
+        return eDouble3DParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<RGBParam>()
+    {
+        return eRGBParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<RGBAParam>()
+    {
+        return eRGBAParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<BooleanParam>()
+    {
+        return eBooleanParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<ChoiceParam>()
+    {
+        return eChoiceParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<CustomParam>()
+    {
+        return eCustomParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<GroupParam>()
+    {
+        return eGroupParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<PageParam>()
+    {
+        return ePageParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<PushButtonParam>()
+    {
+        return ePushButtonParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<ParametricParam>()
+    {
+        return eParametricParam;
+    }
+    template<>
+    inline ParamTypeEnum mapParamTypeToEnum<CameraParam>()
+    {
+        return eCameraParam;
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
     /** @brief A set of parameters in a plugin instance */
-    class ParamSet { 
+    class ParamSet {
     protected :
         mDeclareProtectedAssignAndCC(ParamSet);
         ParamTypeEnum getParamType(const std::string& name) const;
@@ -1716,9 +1851,11 @@ namespace OFX {
         /** @brief calls the raw OFX routine to define a param */
         void fetchRawParam(const std::string &name, ParamTypeEnum paramType, OfxParamHandle &handle) const;
 
+        void fetchRawCameraParam( OfxImageEffectHandle pluginHandle, const std::string& name, NukeOfxCameraHandle& handle ) const;
+
         /** @brief Fetch a param of the given name and type */
-        template <class T> void
-        fetchParam(const std::string &name, ParamTypeEnum paramType, T * &paramPtr) const
+        template <class T>
+        void fetchParam(const std::string &name, ParamTypeEnum paramType, T * &paramPtr) const
         {
             paramPtr = NULL;
 
@@ -1746,8 +1883,8 @@ namespace OFX {
     protected:
         // the following function should be specialized for each param type T
         // (see example below with T = CameraParam)
-        template<class T> void
-        fetchAttribute(OfxImageEffectHandle /*pluginHandle*/, const std::string& /*name*/, T * &/*paramPtr*/) const
+        template<class T>
+        void fetchAttribute(OfxImageEffectHandle /*pluginHandle*/, const std::string& /*name*/, T * &/*paramPtr*/) const
         {
             assert(false);
         }
@@ -1818,9 +1955,45 @@ namespace OFX {
         CustomParam *fetchCustomParam(const std::string &name) const;
 
         /** @brief Fetch a parametric param */
-        ParametricParam* fetchParametricParam(const std::string &name) const;
+        ParametricParam *fetchParametricParam(const std::string &name) const;
+        
+        /** @brief Fetch a camera param */
+        CameraParam *fetchCameraParam(const std::string &name) const;
     };
-};
+
+template<>
+inline void ParamSet::fetchAttribute<CameraParam>( OfxImageEffectHandle pluginHandle, const std::string& name, CameraParam*& paramPtr ) const
+{
+    typedef CameraParam T;
+    const ParamTypeEnum paramType = mapParamTypeToEnum<T>();
+
+    // have we made it already in this param set and is it an int?
+    if( Param * param  = findPreviouslyFetchedParam( name ) )
+    {
+        if( param->getType() == paramType )
+        {
+            paramPtr = (T*) param; // could be a dynamic cast here
+        }
+        else
+        {
+            throw OFX::Exception::TypeRequest( "Fetching param and attempting to return the wrong type" );
+        }
+    }
+    else
+    {
+        // ok define one and add it in
+        NukeOfxCameraHandle paramHandle;
+        fetchRawCameraParam( pluginHandle, name, paramHandle );
+
+        // make out support descriptor class
+        paramPtr = new T( pluginHandle, this, name, paramHandle );
+
+        // add it to our map of described ones
+        _fetchedParams[name] = paramPtr;
+    }
+}
+
+}
 
 // undeclare the protected assign and CC macro
 #undef mDeclareProtectedAssignAndCC
