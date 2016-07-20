@@ -51,6 +51,7 @@ each represent the actions that can be carried out on those particular OFX objec
  */
 
 #include <memory>
+#include <vector>
 #include "ofxsCore.h"
 
 #include "extensions/nuke/fnPublicOfxExtensions.h"
@@ -622,6 +623,9 @@ namespace OFX {
 
         /** @brief append an option, default is to have not there */
         void appendOption(const std::string &v, const std::string& label = "");
+        
+        /** @brief set multiple option from a vector */
+        void appendOptions(const std::vector< std::pair<std::string, std::string> > &v);
     
         /** @brief how many options do we have */
         int getNOptions(void);

@@ -807,6 +807,15 @@ namespace OFX {
       }
     }
   }
+  
+  /** @brief set multiple option from a vector */
+  void ChoiceParamDescriptor::appendOptions(const std::vector< std::pair<std::string, std::string> > &v)
+  {
+    for(auto &option : v)
+    {
+      appendOption(option.first, option.second);
+    }
+  }
 
   /** @brief set the default value */
   void ChoiceParamDescriptor::resetOptions(void)
