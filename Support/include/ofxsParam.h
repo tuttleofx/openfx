@@ -1446,9 +1446,13 @@ namespace OFX {
 
         /** @brief get value */
         void getValue(double &r, double &g, double &b, double &a);
+        
+        OfxRGBAColourD getValue() { OfxRGBAColourD v; getValue(v.r, v.g, v.b, v.a); return v; }
 
         /** @brief get the value at a time */
         void getValueAtTime(double t, double &r, double &g, double &b, double &a);
+        
+        OfxRGBAColourD getValueAtTime(double t) { OfxRGBAColourD v; getValueAtTime(t, v.r, v.g, v.b, v.a); return v; }
 
         /** @brief set value */
         void setValue(double r, double g, double b, double a);
@@ -1478,11 +1482,17 @@ namespace OFX {
         void getDefault(std::string &v);
 
         /** @brief get value */
-        void getValue(std::string &v);
+        void getValue(std::string &v) const;
+
+        /** @brief get value */
+        std::string getValue() const { std::string v; getValue( v ); return v; }
+        
+        /** @brief get the value at a time */
+        void getValueAtTime(double t, std::string &v) const;
 
         /** @brief get the value at a time */
-        void getValueAtTime(double t, std::string &v);
-
+        std::string getValueAtTime( double t ) const { std::string v; getValueAtTime( t, v ); return v; }
+        
         /** @brief set value */
         void setValue(const std::string &v);
 
@@ -1526,10 +1536,16 @@ namespace OFX {
         void resetOptions(void);
 
         /** @brief get value */
-        void getValue(int &v);
+        void getValue(int &v) const;
+
+        /** @brief get value */
+        int getValue() const { int v; getValue( v ); return v; }
 
         /** @brief get the value at a time */
-        void getValueAtTime(double t, int &v);
+        void getValueAtTime(double t, int &v) const;
+
+        /** @brief get the value at a time */
+        int getValueAtTime( double t ) const { int v; getValueAtTime( t, v ); return v; }
 
         /** @brief set value */
         void setValue(int v);
@@ -1635,11 +1651,17 @@ namespace OFX {
         void getDefault(std::string &v);    
 
         /** @brief get value */
-        void getValue(std::string &v);
+        void getValue(std::string &v) const;
+
+        /** @brief get value */
+        std::string getValue() const { std::string v; getValue( v ); return v; }
 
         /** @brief get the value at a time */
-        void getValueAtTime(double t, std::string &v);
+        void getValueAtTime(double t, std::string &v) const;
 
+        /** @brief get value */
+        std::string getValueAtTime(double t) const { std::string v; getValueAtTime(t, v); return v; }
+        
         /** @brief set value */
         void setValue(const std::string &v);
 

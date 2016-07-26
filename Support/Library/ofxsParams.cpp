@@ -2317,7 +2317,7 @@ namespace OFX {
   }
 
   /** @brief get value */
-  void StringParam::getValue(std::string &v)
+  void StringParam::getValue(std::string &v) const
   {
     char *cStr;
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValue(_paramHandle, &cStr);
@@ -2326,7 +2326,7 @@ namespace OFX {
   }
 
   /** @brief get the value at a time */
-  void StringParam::getValueAtTime(double t, std::string &v)
+  void StringParam::getValueAtTime(double t, std::string &v) const
   {
     char *cStr;
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValueAtTime(_paramHandle, t, &cStr);
@@ -2428,14 +2428,14 @@ namespace OFX {
   }
 
   /** @brief get value */
-  void ChoiceParam::getValue(int &v)
+  void ChoiceParam::getValue(int &v) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValue(_paramHandle, &v);
     throwSuiteStatusException(stat);
   }
 
   /** @brief get the value at a time */
-  void ChoiceParam::getValueAtTime(double t, int &v)
+  void ChoiceParam::getValueAtTime(double t, int &v) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValueAtTime(_paramHandle, t, &v);
     throwSuiteStatusException(stat);
@@ -2525,7 +2525,7 @@ namespace OFX {
   }
 
   /** @brief get value */
-  void CustomParam::getValue(std::string &v)
+  void CustomParam::getValue(std::string &v) const
   {
     char *cStr;
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValue(_paramHandle, &cStr);
@@ -2534,7 +2534,7 @@ namespace OFX {
   }
 
   /** @brief get the value at a time */
-  void CustomParam::getValueAtTime(double t, std::string &v)
+  void CustomParam::getValueAtTime(double t, std::string &v)const
   {
     char *cStr;
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValueAtTime(_paramHandle, t, &cStr);
