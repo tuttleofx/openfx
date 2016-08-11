@@ -1738,14 +1738,14 @@ namespace OFX {
   }
 
   /** @brief get value */
-  void Int3DParam::getValue(int &x, int &y, int &z)
+  void Int3DParam::getValue(int &x, int &y, int &z) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValue(_paramHandle, &x, &y, &z);
     throwSuiteStatusException(stat);
   }
 
   /** @brief get the value at a time */
-  void Int3DParam::getValueAtTime(double t, int &x, int &y, int &z)
+  void Int3DParam::getValueAtTime(double t, int &x, int &y, int &z) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValueAtTime(_paramHandle, t, &x, &y, &z);
     throwSuiteStatusException(stat);
@@ -1905,14 +1905,14 @@ namespace OFX {
   }
 
   /** @brief get value */
-  void DoubleParam::getValue(double &v)
+  void DoubleParam::getValue(double &v) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValue(_paramHandle, &v);
     throwSuiteStatusException(stat);
   }
 
   /** @brief get the value at a time */
-  void DoubleParam::getValueAtTime(double t, double &v)
+  void DoubleParam::getValueAtTime(double t, double &v) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValueAtTime(_paramHandle, t, &v);
     throwSuiteStatusException(stat);
@@ -2018,14 +2018,14 @@ namespace OFX {
   }
 
   /** @brief get value */
-  void Double2DParam::getValue(double &x, double &y)
+  void Double2DParam::getValue(double &x, double &y) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValue(_paramHandle, &x, &y);
     throwSuiteStatusException(stat);
   }
 
   /** @brief get the value at a time */
-  void Double2DParam::getValueAtTime(double t, double &x, double &y)
+  void Double2DParam::getValueAtTime(double t, double &x, double &y) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValueAtTime(_paramHandle, t, &x, &y);
     throwSuiteStatusException(stat);
@@ -2142,14 +2142,14 @@ namespace OFX {
   }
 
   /** @brief get value */
-  void Double3DParam::getValue(double &x, double &y, double &z)
+  void Double3DParam::getValue(double &x, double &y, double &z) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValue(_paramHandle, &x, &y, &z);
     throwSuiteStatusException(stat);
   }
 
   /** @brief get the value at a time */
-  void Double3DParam::getValueAtTime(double t, double &x, double &y, double &z)
+  void Double3DParam::getValueAtTime(double t, double &x, double &y, double &z) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValueAtTime(_paramHandle, t, &x, &y, &z);
     throwSuiteStatusException(stat);
@@ -2211,14 +2211,14 @@ namespace OFX {
   }
 
   /** @brief get value */
-  void RGBParam::getValue(double &r, double &g, double &b)
+  void RGBParam::getValue(double &r, double &g, double &b) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValue(_paramHandle, &r, &g, &b);
     throwSuiteStatusException(stat);
   }
 
   /** @brief get the value at a time */
-  void RGBParam::getValueAtTime(double t, double &r, double &g, double &b)
+  void RGBParam::getValueAtTime(double t, double &r, double &g, double &b) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValueAtTime(_paramHandle, t, &r, &g, &b);
     throwSuiteStatusException(stat);
@@ -2267,14 +2267,14 @@ namespace OFX {
   }
 
   /** @brief get value */
-  void RGBAParam::getValue(double &r, double &g, double &b, double &a)
+  void RGBAParam::getValue(double &r, double &g, double &b, double &a) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValue(_paramHandle, &r, &g, &b, &a);
     throwSuiteStatusException(stat);
   }
 
   /** @brief get the value at a time */
-  void RGBAParam::getValueAtTime(double t, double &r, double &g, double &b, double &a)
+  void RGBAParam::getValueAtTime(double t, double &r, double &g, double &b, double &a) const
   {
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValueAtTime(_paramHandle, t, &r, &g, &b, &a);
     throwSuiteStatusException(stat);
@@ -2371,7 +2371,7 @@ namespace OFX {
   }
 
   /** @brief get value */
-  void BooleanParam::getValue(bool &v)
+  void BooleanParam::getValue(bool &v) const
   {
     int iVal;
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValue(_paramHandle, &iVal);
@@ -2380,7 +2380,7 @@ namespace OFX {
   }
 
   /** @brief get the value at a time */
-  void BooleanParam::getValueAtTime(double t, bool &v)
+  void BooleanParam::getValueAtTime(double t, bool &v) const
   {
     int iVal;
     OfxStatus stat = OFX::Private::gParamSuite->paramGetValueAtTime(_paramHandle, t, &iVal);
@@ -2615,7 +2615,7 @@ namespace OFX {
   */
   double ParametricParam::getValue(const int curveIndex,
                                     const OfxTime time,
-                                    const double parametricPosition)
+                                    const double parametricPosition) const
   {
     double returnValue = 0.0;
     OfxStatus stat = OFX::Private::gParametricParameterSuite->parametricParamGetValue(_paramHandle,
@@ -2635,7 +2635,7 @@ namespace OFX {
       @returns the integer value is returned
   */
   int ParametricParam::getNControlPoints(const int curveIndex,
-                                          const OfxTime time)
+                                          const OfxTime time) const
   {
     int returnValue = 0;
     OfxStatus stat = OFX::Private::gParametricParameterSuite->parametricParamGetNControlPoints(_paramHandle,
@@ -2656,7 +2656,7 @@ namespace OFX {
   */
   std::pair<double, double> ParametricParam::getNthControlPoint(const int curveIndex,
                                                                 const OfxTime time,
-                                                                const int nthCtl)
+                                                                const int nthCtl) const
   {
     std::pair<double, double> returnValue;
     OfxStatus stat = OFX::Private::gParametricParameterSuite->parametricParamGetNthControlPoint(_paramHandle,
